@@ -42,35 +42,89 @@
         ];
       in
       rec {
-        packages = {
-          default = lib.pipe { } [
-            (haskellPackages.callPackage self)
-            haskellPackages.buildFromCabalSdist
-            hlib.justStaticExecutables
-            (hlib.appendConfigureFlag "--ghc-option=-Werror --ghc-option=-Wno-error=unrecognised-warning-flags")
+        packages =
+          let
+            src-filtered =
+              with lib.fileset;
+              toSource {
+                root = ./.;
+                fileset = unions [
+                  ./exe
+                  ./lib
+                  ./test
+                  ./nix-output-monitor.cabal
+                  ./cabal.project.local
+                  ./default.nix
+                  ./CHANGELOG.md
+                  ./LICENSE
+                ];
+              };
+          in
+          {
+            test =
+              let
+                nom = haskellPackages.callPackage src-filtered { };
+                drv = nom.overrideAttrs (oldAttrs: {
+                  outputs = oldAttrs.outputs or [ ] ++ [
+                    "test"
+                  ];
+                  postBuild = oldAttrs.postBuild or "" + /* bash */ ''
+                    mkdir -p $test
+                    cp ./dist/build/golden-tests/golden-tests $test/golden-tests
+                  '';
+                  checkPhase = "";
+                });
+                test-files =
+                  with lib.fileset;
+                  toSource {
+                    root = ./.;
+                    fileset = unions [
+                      ./test/golden
+                    ];
+                  };
+              in
+              pkgs.symlinkJoin {
+                name = "nom-test";
+                paths = [
+                  (lib.getOutput "test" drv)
+                  test-files
+                ];
+              };
 
-            (hlib.overrideCabal (
-              {
-                src = cleanSelf;
-                doCheck = false;
-                buildTools = [ pkgs.installShellFiles ];
-                postInstall = ''
-                  ln -s nom "$out/bin/nom-build"
-                  ln -s nom "$out/bin/nom-shell"
-                  chmod a+x $out/bin/nom-shell
-                  installShellCompletion completions/*
-                '';
-              }
-              // lib.optionalAttrs (system == "x86_64-linux") {
-                doCheck = true;
-                preCheck = ''
-                  # ${lib.concatStringsSep ", " (golden-tests ++ map (x: x.drvPath) golden-tests)}
-                  export TESTS_FROM_FILE=true;
-                '';
-              }
-            ))
-          ];
-        };
+            nixos-test = import ./nixos-test.nix {
+              nom-test = packages.test;
+              inherit lib;
+              inherit (pkgs.testers) runNixOSTest;
+            };
+
+            default = lib.pipe { } [
+              (haskellPackages.callPackage src-filtered)
+              haskellPackages.buildFromCabalSdist
+              hlib.justStaticExecutables
+              (hlib.appendConfigureFlag "--ghc-option=-Werror --ghc-option=-Wno-error=unrecognised-warning-flags")
+
+              (hlib.overrideCabal (
+                {
+                  src = cleanSelf;
+                  doCheck = false;
+                  buildTools = [ pkgs.installShellFiles ];
+                  postInstall = ''
+                    ln -s nom "$out/bin/nom-build"
+                    ln -s nom "$out/bin/nom-shell"
+                    chmod a+x $out/bin/nom-shell
+                    installShellCompletion completions/*
+                  '';
+                }
+                // lib.optionalAttrs (system == "x86_64-linux") {
+                  doCheck = true;
+                  preCheck = ''
+                    # ${lib.concatStringsSep ", " (golden-tests ++ map (x: x.drvPath) golden-tests)}
+                    export TESTS_FROM_FILE=true;
+                  '';
+                }
+              ))
+            ];
+          };
         checks = {
           git-hooks-check = git-hooks.lib.${system}.run {
             src = ./.;
