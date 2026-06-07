@@ -26,6 +26,8 @@ data UpdateResult a = MkUpdateResult
   , newState :: UpdaterState a
   }
 
+deriving stock instance Show (UpdaterState a) => Show (UpdateResult a)
+
 class NOMInput a where
   type UpdaterState a
   firstState :: NOMState -> UpdaterState a

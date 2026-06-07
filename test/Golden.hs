@@ -43,6 +43,8 @@ import Test.HUnit (
   runTestTT,
   (~:),
  )
+import Text.Pretty.Simple (pShow)
+import System.IO (openFile, hClose)
 
 tests :: [TestConfig -> Test]
 tests = [goldenStandard, goldenFail]
@@ -98,10 +100,15 @@ testBuild name config asserts =
     end_state <- if config.oldStyle then testProcess @OldStyleInput (Stream.fromPure errors) else testProcess @NixJSONMessage (Stream.fromList (ByteString.lines errors))
     asserts output end_state
 
-testProcess :: forall input. (NOMInput input) => Stream.Stream IO ByteString -> IO NOMState
+testProcess :: forall input. (Show (UpdaterState input), NOMInput input) => Stream.Stream IO ByteString -> IO NOMState
 testProcess input = withParser @input \streamParser -> do
   first_state <- firstState @input <$> initalStateFromBuildPlatform (Just "x86_64-linux")
-  end_state <- processTextStream @input @(UpdaterState input) (MkConfig False False) streamParser stateUpdater (\now -> nomState @input %~ maintainState now) (Just $ (mempty, stdout)) (finalizer @input) first_state (Right <$> input)
+
+  handle <- openFile "test.log" WriteMode
+  end_state <- processTextStream @input @(UpdaterState input) (MkConfig False False) streamParser stateUpdater (\now -> nomState @input %~ maintainState now) 
+    (Just (\st _ time -> toStrict (pShow (st, time)), handle)) (finalizer @input) first_state (Right <$> input)
+  hClose handle
+
   pure (end_state ^. nomState @input)
 
 stateUpdater :: forall input m. (NOMInput input, UpdateMonad m) => input -> StateT (UpdaterState input) m ([NOMError], ByteString, Bool)
