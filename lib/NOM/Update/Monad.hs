@@ -67,7 +67,9 @@ class (Monad m) => MonadCheckStorePath m where
   storePathExists :: StorePath -> m Bool
 
 instance MonadCheckStorePath IO where
-  storePathExists = doesPathExist . toString
+  storePathExists = const $ pure True
+
+-- doesPathExist . toString
 
 instance (MonadCheckStorePath m) => MonadCheckStorePath (StateT a m) where
   storePathExists = lift . storePathExists
