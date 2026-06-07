@@ -19,7 +19,7 @@ import NOM.Update.Monad.CacheBuildReports
 -- nix-derivation
 import Nix.Derivation qualified as Nix
 import Relude
-import System.Directory (doesPathExist)
+-- import System.Directory (doesPathExist)
 
 type UpdateMonad m = (Monad m, MonadNow m, MonadReadDerivation m, MonadCacheBuildReports m, MonadCheckStorePath m)
 

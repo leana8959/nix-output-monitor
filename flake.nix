@@ -42,91 +42,72 @@
         ];
       in
       rec {
-        packages =
-          let
-            src-filtered =
-              with lib.fileset;
-              toSource {
-                root = ./.;
-                fileset = unions [
-                  ./exe
-                  ./lib
-                  ./test
-                  ./nix-output-monitor.cabal
-                  ./cabal.project.local
-                  ./default.nix
-                  ./CHANGELOG.md
-                  ./LICENSE
+        packages = {
+          test =
+            let
+              nom = (hlib.overrideCabal { doCheck = true; } packages.default).overrideAttrs (oldAttrs: {
+                outputs = oldAttrs.outputs or [ ] ++ [
+                  "test"
                 ];
-              };
-          in
-          {
-            test =
-              let
-                nom = haskellPackages.callPackage src-filtered { };
-                drv = nom.overrideAttrs (oldAttrs: {
-                  outputs = oldAttrs.outputs or [ ] ++ [
-                    "test"
+                postBuild = oldAttrs.postBuild or "" + /* bash */ ''
+                  mkdir -p $test
+                  cp ./dist/build/golden-tests/golden-tests $test/golden-tests
+                '';
+                checkPhase = ''
+                  # ${lib.concatStringsSep ", " (golden-tests ++ map (x: x.drvPath) golden-tests)}
+                '';
+              });
+              test-files =
+                with lib.fileset;
+                toSource {
+                  root = ./.;
+                  fileset = unions [
+                    ./test/golden
                   ];
-                  postBuild = oldAttrs.postBuild or "" + /* bash */ ''
-                    mkdir -p $test
-                    cp ./dist/build/golden-tests/golden-tests $test/golden-tests
-                  '';
-                  checkPhase = ''
-                    # ${lib.concatStringsSep ", " (golden-tests ++ map (x: x.drvPath) golden-tests)}
-                  '';
-                });
-                test-files =
-                  with lib.fileset;
-                  toSource {
-                    root = ./.;
-                    fileset = unions [
-                      ./test/golden
-                    ];
-                  };
-              in
-              pkgs.symlinkJoin {
-                name = "nom-test";
-                paths = [
-                  (lib.getOutput "test" drv)
-                  test-files
-                ];
-              };
-
-            nixos-test = import ./nixos-test.nix {
-              nom-test = packages.test;
-              inherit lib;
-              inherit (pkgs.testers) runNixOSTest;
+                };
+            in
+            pkgs.symlinkJoin {
+              name = "nom-test";
+              paths = [
+                (lib.getOutput "test" nom)
+                test-files
+              ];
             };
 
-            default = lib.pipe { } [
-              (haskellPackages.callPackage src-filtered)
-              haskellPackages.buildFromCabalSdist
-              hlib.justStaticExecutables
-              (hlib.appendConfigureFlag "--ghc-option=-Werror --ghc-option=-Wno-error=unrecognised-warning-flags")
-
-              (hlib.overrideCabal (
-                {
-                  src = cleanSelf;
-                  doCheck = false;
-                  buildTools = [ pkgs.installShellFiles ];
-                  postInstall = ''
-                    ln -s nom "$out/bin/nom-build"
-                    ln -s nom "$out/bin/nom-shell"
-                    chmod a+x $out/bin/nom-shell
-                    installShellCompletion completions/*
-                  '';
-                }
-                // lib.optionalAttrs (system == "x86_64-linux") {
-                  doCheck = true;
-                  preCheck = ''
-                    # ${lib.concatStringsSep ", " (golden-tests ++ map (x: x.drvPath) golden-tests)}
-                    export TESTS_FROM_FILE=true;
-                  '';
-                }
-              ))
-            ];
+          nixos-test = import ./nixos-test.nix {
+            nom-test = packages.test;
+            inherit lib;
+            inherit pkgs;
+            inherit (pkgs.testers) runNixOSTest;
           };
+
+          default = lib.pipe { } [
+            (haskellPackages.callPackage cleanSelf)
+            haskellPackages.buildFromCabalSdist
+            hlib.justStaticExecutables
+            (hlib.appendConfigureFlag "--ghc-option=-Werror --ghc-option=-Wno-error=unrecognised-warning-flags")
+
+            (hlib.overrideCabal (
+              {
+                doCheck = false;
+                buildTools = [ pkgs.installShellFiles ];
+                postInstall = ''
+                  ln -s nom "$out/bin/nom-build"
+                  ln -s nom "$out/bin/nom-shell"
+                  chmod a+x $out/bin/nom-shell
+                  installShellCompletion completions/*
+                '';
+              }
+              // lib.optionalAttrs (system == "x86_64-linux") {
+                doCheck = true;
+                preCheck = ''
+                  # ${lib.concatStringsSep ", " (golden-tests ++ map (x: x.drvPath) golden-tests)}
+                  export TESTS_FROM_FILE=true;
+                '';
+              }
+            ))
+          ];
+        };
         checks = {
           git-hooks-check = git-hooks.lib.${system}.run {
             src = ./.;

@@ -3,7 +3,7 @@ module Main (main) where
 import Control.Monad.Trans.Writer.CPS (runWriterT)
 import Data.ByteString.Char8 qualified as ByteString
 import Data.Text qualified as Text
-import Debug.Pretty.Simple (pTrace)
+-- import Debug.Pretty.Simple (pTrace)
 import NOM.Builds (parseStorePath)
 import NOM.Error (NOMError)
 import NOM.IO (processTextStream)
