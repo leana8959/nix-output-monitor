@@ -72,7 +72,9 @@
                     mkdir -p $test
                     cp ./dist/build/golden-tests/golden-tests $test/golden-tests
                   '';
-                  checkPhase = "";
+                  checkPhase = ''
+                    # ${lib.concatStringsSep ", " (golden-tests ++ map (x: x.drvPath) golden-tests)}
+                  '';
                 });
                 test-files =
                   with lib.fileset;
