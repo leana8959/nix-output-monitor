@@ -43,6 +43,8 @@ import Test.HUnit (
   (~:),
  )
 
+import Debug.Pretty.Simple (pTrace)
+
 tests :: [TestConfig -> Test]
 tests = [goldenStandard, goldenFail]
 
@@ -135,6 +137,8 @@ goldenStandard config = testBuild "standard" config \nix_output endState@MkNOMSt
           outPathToDerivation pathId
     assertEqual "Derivations for all outputs have been found" noOfBuilds (length outputDerivations)
     assertBool "All found derivations have successfully been built" (CSet.isSubsetOf (CSet.fromFoldable outputDerivations) (CMap.keysSet completedBuilds))
+
+  pTrace (show endState) (pure ())
 
 goldenFail :: TestConfig -> Test
 goldenFail config = testBuild "fail" config \_ MkNOMState{fullSummary = d@MkDependencySummary{..}} -> do

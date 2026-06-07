@@ -177,6 +177,8 @@ test-suite unit-tests
 test-suite golden-tests
   import: tests
   hs-source-dirs: test
-  build-depends: random
+  build-depends:
+    , random
+    , pretty-simple
   type: exitcode-stdio-1.0
   main-is: Golden.hs
