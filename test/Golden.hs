@@ -101,7 +101,7 @@ testBuild name config asserts =
 testProcess :: forall input. (NOMInput input) => Stream.Stream IO ByteString -> IO NOMState
 testProcess input = withParser @input \streamParser -> do
   first_state <- firstState @input <$> initalStateFromBuildPlatform (Just "x86_64-linux")
-  end_state <- processTextStream @input @(UpdaterState input) (MkConfig False False) streamParser stateUpdater (\now -> nomState @input %~ maintainState now) Nothing (finalizer @input) first_state (Right <$> input)
+  end_state <- processTextStream @input @(UpdaterState input) (MkConfig False False) streamParser stateUpdater (\now -> nomState @input %~ maintainState now) (Just $ (mempty, stdout)) (finalizer @input) first_state (Right <$> input)
   pure (end_state ^. nomState @input)
 
 stateUpdater :: forall input m. (NOMInput input, UpdateMonad m) => input -> StateT (UpdaterState input) m ([NOMError], ByteString, Bool)
@@ -119,6 +119,7 @@ finalizer = do
 
 goldenStandard :: TestConfig -> Test
 goldenStandard config = testBuild "standard" config \nix_output endState@MkNOMState{fullSummary = MkDependencySummary{..}} -> do
+  -- pTrace (show endState) (pure ())
   let noOfBuilds :: Int
       noOfBuilds = 4
   assertBool ("There should be no running builds but there is " <> show plannedBuilds) (CSet.null plannedBuilds)
@@ -136,8 +137,6 @@ goldenStandard config = testBuild "standard" config \nix_output endState@MkNOMSt
           outPathToDerivation pathId
     assertEqual "Derivations for all outputs have been found" noOfBuilds (length outputDerivations)
     assertBool "All found derivations have successfully been built" (CSet.isSubsetOf (CSet.fromFoldable outputDerivations) (CMap.keysSet completedBuilds))
-
-  pTrace (show endState) (pure ())
 
 goldenFail :: TestConfig -> Test
 goldenFail config = testBuild "fail" config \_ MkNOMState{fullSummary = d@MkDependencySummary{..}} -> do
