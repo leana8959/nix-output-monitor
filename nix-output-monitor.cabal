@@ -49,6 +49,7 @@ common common-config
     DuplicateRecordFields
     ImportQualifiedPost
     LambdaCase
+    MultiWayIf
     NoDeriveGeneric
     NoFieldSelectors
     NoImplicitPrelude
