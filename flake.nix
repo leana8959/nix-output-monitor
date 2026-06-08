@@ -128,6 +128,10 @@
                 enable = true;
                 excludes = [ "\\.zsh" ];
               };
+              typos = {
+                enable = true;
+                settings.write = true;
+              };
               cabal-gild.enable = true;
             };
           };
