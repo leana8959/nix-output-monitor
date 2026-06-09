@@ -17,7 +17,7 @@ import NOM.State (
   DerivationId,
   NOMState (..),
   getStorePathId,
-  initalStateFromBuildPlatform,
+  initialStateFromBuildPlatform,
   outPathToDerivation,
  )
 import NOM.State.CacheId.Map qualified as CMap
@@ -93,7 +93,7 @@ testBuild name config asserts =
 
 testProcess :: forall input. (NOMInput input) => Stream.Stream IO ByteString -> IO NOMState
 testProcess input = withParser @input \streamParser -> do
-  first_state <- firstState @input <$> initalStateFromBuildPlatform (Just "x86_64-linux")
+  first_state <- firstState @input <$> initialStateFromBuildPlatform (Just "x86_64-linux")
   end_state <- processTextStream @input @(UpdaterState input) (MkConfig False False) streamParser stateUpdater (\now -> nomState @input %~ maintainState now) Nothing (finalizer @input) first_state (Right <$> input)
   pure (end_state ^. nomState @input)
 

@@ -17,7 +17,7 @@ import NOM.IO.Input.OldStyle (OldStyleInput)
 import NOM.NixMessage.JSON (NixJSONMessage)
 import NOM.Print (Config (..), stateToText)
 import NOM.Print.Table (markup, red)
-import NOM.State (DependencySummary (..), NOMState (..), ProgressState (..), initalStateFromBuildPlatform)
+import NOM.State (DependencySummary (..), NOMState (..), ProgressState (..), initialStateFromBuildPlatform)
 import NOM.State.CacheId.Map qualified as CMap
 import NOM.Update (detectLocalFinishedBuilds, maintainState)
 import NOM.Update.Monad (UpdateMonad)
@@ -173,7 +173,7 @@ monitorHandle update config input_handle = withParser \streamParser -> do
       hSetBuffering stdout (BlockBuffering (Just 1_000_000))
 
       current_system <- Exception.handle ((Nothing <$) . printIOException) $ Just . decodeUtf8 <$> Process.readProcessStdout_ (Process.proc "nix" ["eval", "--extra-experimental-features", "nix-command", "--impure", "--raw", "--expr", "builtins.currentSystem"])
-      first_state <- initalStateFromBuildPlatform current_system
+      first_state <- initialStateFromBuildPlatform current_system
       let first_process_state = MkProcessState (firstState @update first_state) (stateToText config first_state)
       interact @update config streamParser (processStateUpdater config) (\now -> #updaterState % nomState @update %~ maintainState now) (.printFunction) (finalizer config) (inputStream update input_handle) outputHandle first_process_state
       `Exception.finally` do

@@ -280,7 +280,7 @@ processJsonMessage = \case
         isCompleted <-
           derivationToAnyOutPath drvId >>= \case
             Nothing -> pure False -- Derivation has no "out" output.
-            Just path -> waitForStorePath path -- Blocks up to 500ms. This should probably be fixed by doing something smart wtih concurrency.
+            Just path -> waitForStorePath path -- Blocks up to 500ms. This should probably be fixed by doing something smart with concurrency.
         if isCompleted then withChange $ finishBuildByDrvId host drvId else noChange
       _ -> pure (isJust interesting_activity)
   Plain msg -> tell [Right msg] >> noChange
@@ -477,7 +477,7 @@ building host drvName now activityId = do
   updateDerivationState drvId
     $ Building
     . \case
-      Building bi -> bi & #activityId .~ Strict.toStrict activityId -- This happens with ssh-ng. After we already registered this build as started we get a second activity start event. No frome the remote host. Sadly we can not see whether a message is from the local or the remote daemon.
+      Building bi -> bi & #activityId .~ Strict.toStrict activityId -- This happens with ssh-ng. After we already registered this build as started we get a second activity start event. No from the remote host. Sadly we can not see whether a message is from the local or the remote daemon.
       -- It would probably be better to only mark the build running on the second start message, but that probably does not work with all remote build protocols other than ssh-ng.
       _ -> MkBuildInfo now host (Strict.toStrict lastNeeded) (Strict.toStrict activityId) ()
 

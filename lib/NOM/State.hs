@@ -25,7 +25,7 @@ module NOM.State (
   InputDerivation (..),
   EvalInfo (..),
   getDerivationInfos,
-  initalStateFromBuildPlatform,
+  initialStateFromBuildPlatform,
   updateSummaryForStorePath,
   clearDerivationIdFromSummary,
   clearStorePathsFromSummary,
@@ -265,8 +265,8 @@ data NOMState = MkNOMState
 
 makeFieldLabelsNoPrefix ''NOMState
 
-initalStateFromBuildPlatform :: (MonadCacheBuildReports m, MonadNow m) => Maybe Text -> m NOMState
-initalStateFromBuildPlatform platform = do
+initialStateFromBuildPlatform :: (MonadCacheBuildReports m, MonadNow m) => Maybe Text -> m NOMState
+initialStateFromBuildPlatform platform = do
   now <- getNow
   buildReports <- getCachedBuildReports
   pure
