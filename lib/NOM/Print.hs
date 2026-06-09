@@ -414,9 +414,9 @@ printBuilds nomState@MkNOMState{..} hostAbbrevs limits = printBuildsWithTime
       let mkNode
             | not (CSet.member thisDrv seen_ids) && CSet.member thisDrv derivationsToShow = do
                 let drvInfo = get' (getDerivationInfos thisDrv)
-                    children = children thisDrv
+                    children' = children thisDrv
                 modify (CSet.insert thisDrv)
-                subforest <- goBuildForest children
+                subforest <- goBuildForest children'
                 pure (Node drvInfo subforest :)
             | otherwise = pure id
       prepend_node <- mkNode
