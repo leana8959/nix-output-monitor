@@ -478,16 +478,12 @@ printBuilds nomState@MkNOMState{..} hostAbbrevs limits = printBuildsWithTime
              in infos.inputFor <> CSet.fromFoldable infos.producer
           may_hide = CSet.isSubsetOf (nodesOfRunningTransfers <> CMap.keysSet failedBuilds <> CMap.keysSet runningBuilds) seen_ids
           show_this_node =
-            limits.height
-              > 0
-              && summary
-              /= mempty
+            limits.height > 0
+              && summary /= mempty
               && not (CSet.member thisDrv seen_ids)
               && ( not may_hide
-                     || Set.size sorted_set
-                     < limits.height
-                     || sort_key
-                     < view _2 (Set.elemAt (limits.height - 1) sorted_set)
+                     || Set.size sorted_set < limits.height
+                     || sort_key < view _2 (Set.elemAt (limits.height - 1) sorted_set)
                  )
           new_seen_ids = CSet.insert thisDrv seen_ids
           new_sorted_set = Set.insert (may_hide, sort_key, thisDrv) sorted_set

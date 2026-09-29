@@ -95,8 +95,7 @@ splitAtDisplayWidthStep cut (Right (w, in_ansi, l, r)) c =
   let (w', in_ansi') = widthFold (w, in_ansi) c
    in if not in_ansi'
         && not (isWideChar c) -- consider this char as if it were two.
-        && w'
-        > cut
+        && w' > cut
         then Left (l, r <> Text.singleton c)
         else Right (w', in_ansi', l <> Text.singleton c, r)
 
