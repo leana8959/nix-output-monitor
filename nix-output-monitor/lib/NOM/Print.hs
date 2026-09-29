@@ -16,7 +16,7 @@ import GHC.Records (HasField)
 import NOM.Builds (Derivation (..), FailType (..), Host (..), HostContext (..), StorePath (..), forgetProto)
 import NOM.NixMessage.JSON (ActivityId (..), ActivityProgress (..))
 import NOM.Print.ProgressBar (printProgressBar)
-import NOM.Print.Table (Entry, blue, bold, cells, displayWidth, dummy, green, grey, header, label, magenta, markup, markups, prependLines, printAlignedSep, red, text, yellow)
+import NOM.Print.Table (Entry, blue, bold, cells, displayWidth, dropDisplayWidth, dummy, green, grey, header, label, magenta, markup, markups, prependLines, printAlignedSep, red, text, yellow)
 import NOM.Print.Tree (showForest)
 import NOM.State (
   ActivityStatus (..),
@@ -404,7 +404,7 @@ printBuilds nomState@MkNOMState{..} hostAbbrevs limits = printBuildsWithTime
           right_part = with_bracket_symbol (progress_bar <> "|" <> percent_text)
           overrun_length = displayWidth left_part - left_width
           right_part'
-            | overrun_length > 0 = markup grey $ "… " <> Text.drop (overrun_length + 1 {- left bracket is fullwidth -}) right_part
+            | overrun_length > 0 = markup grey $ "… " <> dropDisplayWidth (overrun_length + 2) right_part
             | otherwise = Text.replicate (-overrun_length) " " <> right_part
          in
           left_part <> right_part'
