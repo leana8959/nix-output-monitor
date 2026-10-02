@@ -14,8 +14,6 @@ module NOM.Print.Table (
   dummy,
   header,
   displayWidth,
-  splitAtDisplayWidthLossy,
-  dropDisplayWidthLossy,
   truncate,
   markup,
   markups,
@@ -67,39 +65,6 @@ truncateFold cut (Right (l, x, e)) c =
   let (newX, newE) = widthFold (x, e) c
    in if newX > cut then Left l else Right (l <> Text.singleton c, newX, newE)
 
-{- | Drop the least amount of characters necessary to make the text's displayWidth n cells shorter.
-     If tried to slice a full width unicode character into two, it is turned into two whitespace characters.
-
->>> dropDisplayWidthLossy 3 "〔abcd〕"
-"bcd\12309"
->>> dropDisplayWidthLossy 2 "〔abcd〕"
-"abcd\12309"
->>> dropDisplayWidthLossy 1 "〔abcd〕"
-" abcd\12309"
->>> dropDisplayWidthLossy 2 "a〕"
-" "
--}
-dropDisplayWidthLossy :: Int -> Text -> Text
-dropDisplayWidthLossy n = snd . splitAtDisplayWidthLossy n
-
-splitAtDisplayWidthLossy :: Int -> Text -> (Text, Text)
-splitAtDisplayWidthLossy cut = either id (\(_, _, l, r) -> (l, r)) . Text.foldl' (splitAtDisplayWidthLossyStep cut) (Right (0, False, "", ""))
-
-splitAtDisplayWidthLossyStep ::
-  Int ->
-  {- | (Width so far, in an ANSI escape sequence, text before, text after).
-  Switch to Left when cutoff point is met.
-  -}
-  Either (Text, Text) (Int, Bool, Text, Text) ->
-  Char ->
-  Either (Text, Text) (Int, Bool, Text, Text)
-splitAtDisplayWidthLossyStep _ (Left (l, r)) c = Left (l, r <> Text.singleton c)
-splitAtDisplayWidthLossyStep cut (Right (w, in_ansi, l, r)) c =
-  let (w', in_ansi') = widthFold (w, in_ansi) c
-   in if not in_ansi' && w' > cut
-        then if isWideChar c then Left (l <> " ", r <> " ") else Left (l, r <> Text.singleton c)
-        else Right (w', in_ansi', l <> Text.singleton c, r)
-
 -- See: https://github.com/maralorn/nix-output-monitor/issues/78
 widthFold ::
   -- | (Width so far, in an ANSI escape sequence)
@@ -109,13 +74,7 @@ widthFold ::
 widthFold (x, True) 'm' = (x, False)
 widthFold (x, True) _ = (x, True)
 widthFold (x, False) (fromEnum -> 0x1b) = (x, True) -- Escape sequence
-widthFold (x, False) c = let n = if isWideChar c then 2 else 1 in (x + n, False)
-
--- TODO(leana8959): Turtle brackets are known fullwidth, but this list is not exhaustive.
-isWideChar :: Char -> Bool
-isWideChar '〔' = True
-isWideChar '〕' = True
-isWideChar _ = False
+widthFold (x, False) _ = (x + 1, False)
 
 dummy :: Entry
 dummy = text ""
