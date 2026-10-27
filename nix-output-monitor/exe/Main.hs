@@ -19,7 +19,7 @@ import NOM.IO.Input.OldStyle (OldStyleInput)
 import NOM.NixMessage.JSON (NixJSONMessage)
 import NOM.Print (Config (..), stateToText)
 import NOM.Print.Table (markup, red)
-import NOM.State (PrintState(..), ProgressState (..), DependencySummary (..), NOMState (..), ProgressState (..))
+import NOM.State (DependencySummary (..), NOMState (..), PrintState (..), ProgressState (..))
 import NOM.State.CacheId.Map qualified as CMap
 import NOM.State.Initial (initialStateFromBuildPlatform)
 import NOM.Update (checkFinishedBuilds, maintainState)

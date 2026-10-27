@@ -327,7 +327,7 @@ mainIOLoop config parser updater maintenance printerMay finalize initialState in
         $ Concurrently keepProcessingNixCmd
         <|> Concurrently keepProcessingStdin
         <|> Concurrently keepPrinting
-      atomically (takeTMVar state_var) >>= \s -> 
+      atomically (takeTMVar state_var) >>= \s ->
         runReaderT (execStateT finalize s) check_path_env >>= atomically . putTMVar state_var
       writeToScreen
     (if isNothing printerMay then (>>= \s -> runReaderT (execStateT finalize s) check_path_env) else id)

@@ -714,6 +714,7 @@ printDuration diff
 
 timeDiffSeconds :: Int -> Text
 timeDiffSeconds = printDuration . fromIntegral
+
 helpString :: NonEmpty Text
 helpString =
   fromList
