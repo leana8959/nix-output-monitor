@@ -1,5 +1,118 @@
 # Revision history for nix-output-monitor
 
+## 2.2.0 -- 2026-07-28
+
+## Highlights
+
+* Download progress reporting with progress bar for individual downloads
+* New subcommands: nom copy, nom flake
+* Fix stale running builds for lix users
+* Note to maintainers:
+  * Relicensed to EUPL
+  * Moved source files into nix-output-monitor/ subfolder of the repo
+
+## What's Changed
+
+* Report download progress by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/217>
+* feat: add copy subcommand by @TheColorman in <https://github.com/maralorn/nix-output-monitor/pull/227>
+* Update deps by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/238>
+* Corrected completion files in nix-output-monitor.cabal by @tmcl in <https://github.com/maralorn/nix-output-monitor/pull/237>
+* Use pre-push hook by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/239>
+* fix `from` -> `to` for uploads by @SandaruKasa in <https://github.com/maralorn/nix-output-monitor/pull/236>
+* devShell: add hlint by @SandaruKasa in <https://github.com/maralorn/nix-output-monitor/pull/235>
+* Add further files to extra-source-files by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/240>
+* fix: use Word for activity IDs to handle large unsigned values by @lovesegfault in <https://github.com/maralorn/nix-output-monitor/pull/243>
+* Revert "Try fixing build finished detection" + make build by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/246>
+* Wait for store path if it is not there when the build finishes by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/247>
+* Add bash completion for `nom-build` and `nom-shell` by @philiptaron in <https://github.com/maralorn/nix-output-monitor/pull/245>
+* Relicense to EUPL by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/244>
+* fix: update location of cached build times by @magicquark in <https://github.com/maralorn/nix-output-monitor/pull/257>
+* Make error messages more expressive by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/261>
+* fix: reset formatting before the first line by @SandaruKasa in <https://github.com/maralorn/nix-output-monitor/pull/259>
+* Add NixOS integration test by @leana8959 in <https://github.com/maralorn/nix-output-monitor/pull/263>
+* Async wait for paths with inotify by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/266>
+* Enable typos check pre push by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/267>
+* Tweak CI by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/272>
+* Replace inotify with fsnotify by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/271>
+* flake: provide an overlay by @SandaruKasa in <https://github.com/maralorn/nix-output-monitor/pull/268>
+* Refactor test to use streaming by @leana8959 in <https://github.com/maralorn/nix-output-monitor/pull/270>
+* Add manual store path polling because we don’t trust inotify by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/275>
+* Disable test output on non default platforms by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/274>
+* Drop unnecessary autogen-modules entry by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/280>
+* Switch to GHC2024 by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/285>
+* Add doctests by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/284>
+* Better and consistent test suite names by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/286>
+* Drop auto sync actions by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/287>
+* Add 'nom flake' subcommand by @vaibhavsagar in <https://github.com/maralorn/nix-output-monitor/pull/288>
+* Remove nix build step in CI because it is subsumed by nix flake check by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/289>
+* Update helpText to mention 'nom flake' wrapper by @vaibhavsagar in <https://github.com/maralorn/nix-output-monitor/pull/292>
+* invoke nix directly when --help is mentioned by @leana8959 in <https://github.com/maralorn/nix-output-monitor/pull/294>
+* Call watchDir only once by @ryndubei in <https://github.com/maralorn/nix-output-monitor/pull/295>
+* Move source files into subdir by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/297>
+
+## New Contributors
+
+* @TheColorman made their first contribution in <https://github.com/maralorn/nix-output-monitor/pull/227>
+* @tmcl made their first contribution in <https://github.com/maralorn/nix-output-monitor/pull/237>
+* @lovesegfault made their first contribution in <https://github.com/maralorn/nix-output-monitor/pull/243>
+* @magicquark made their first contribution in <https://github.com/maralorn/nix-output-monitor/pull/257>
+* @leana8959 made their first contribution in <https://github.com/maralorn/nix-output-monitor/pull/263>
+* @vaibhavsagar made their first contribution in <https://github.com/maralorn/nix-output-monitor/pull/288>
+* @ryndubei made their first contribution in <https://github.com/maralorn/nix-output-monitor/pull/295>
+
+**Full Changelog**: <https://github.com/maralorn/nix-output-monitor/compare/v2.1.8...v2.2.0>
+
+## 2.1.8 -- 2025-11-08
+
+* Fix bug in history limit enforcement
+
+## 2.1.7 -- 2025-11-08
+
+## Highlights
+
+* Fixed support for build time estimates. The guess is now the median of the last 10 builds (by drv name without hash and build host name).
+* Fixes compatibility with some additions in nix internal-json format.
+* #200 hopefully fixes download reporting for newer nix versions. (Haven’t yet tested on that versions, waiting for user feedback.)
+
+## What's Changed
+
+* Add missing result type 108 fetchStatus by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/194>
+* fix: typographical errors by @sheeeng in <https://github.com/maralorn/nix-output-monitor/pull/199>
+* Use singular "Trace" when count is 1 by @osbm in <https://github.com/maralorn/nix-output-monitor/pull/202>
+* fix: Local store URL parsing (#200) by @blackheaven in <https://github.com/maralorn/nix-output-monitor/pull/203>
+* Fix build on systems other than x86_64-linux by @psentee in <https://github.com/maralorn/nix-output-monitor/pull/204>
+* Switch csv cache location by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/207>
+* Use repeatedly by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/208>
+* Use median of last 20 builds for estimate by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/209>
+* Move toHost/fromHost by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/210>
+* Avoid doing lazy IO on build-reports.csv by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/211>
+* Rename field in csv to be clearer by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/213>
+* Add fourmolu to shell to fix formatting discrepancies by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/214>
+* More reordering by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/215>
+* completions: add fish shell support by @considerate in <https://github.com/maralorn/nix-output-monitor/pull/188>
+* Improve download size parsing by @maralorn in <https://github.com/maralorn/nix-output-monitor/pull/216>
+
+## New Contributors
+
+* @sheeeng made their first contribution in <https://github.com/maralorn/nix-output-monitor/pull/199>
+* @osbm made their first contribution in <https://github.com/maralorn/nix-output-monitor/pull/202>
+* @psentee made their first contribution in <https://github.com/maralorn/nix-output-monitor/pull/204>
+* @considerate made their first contribution in <https://github.com/maralorn/nix-output-monitor/pull/188>
+
+**Full Changelog**: <https://github.com/maralorn/nix-output-monitor/compare/v2.1.6...v2.1.7>
+
+## 2.1.6 -- 2025-04-07
+
+* Improve finished message coloring by @Aehmlo
+* Switch from lock-file to filelock library
+* Compatibility with GHC 9.8
+
+## 2.1.5 -- 2025-02-28
+
+* Support new activity type used in nix
+* Use synchronized rendering to better prevent flickering. See <https://gitlab.com/gnachman/iterm2/-/wikis/synchronized-updates-spec> for more details.
+  Note: For a list of supported Terminals see <https://gist.github.com/christianparpart/d8a62cc1ab659194337d73e399004036#adoption-state>
+
 ## 2.1.4 -- 2024-10-17
 
 * bash: Add shell completion for `nom` command (thanks to @tomberek and @pdietl).
@@ -66,7 +179,7 @@
 
 ## 2.0.0.0 -- 2022-10-15
 
-### Highlights:
+### Highlights
 
 * **New ways to use nom**, via different aliases and options. Have a look at the README for new usage or just try `nom build`, `nom develop` or `nom-build` …
 * **Full support for new-style nix commands like `nix build`** and therefor also flakes.
@@ -79,7 +192,7 @@
   * Log output is prefixed with build job names.
 * Massive internal refactoring with significant performance improvements and less flickering.
 
-### Further changes:
+### Further changes
 
 * The algorithm to layout the rendering tree has been improved.
 * Improved build name display and show build platform if different from our platform.
@@ -93,44 +206,56 @@
 * Most performance improvements came from replacing aeson with json-hermes.
 
 ## 1.1.3.0 -- 2022-03-21
+
 * Update parser to correctly detect failed builds on nix 2.7
 
 ## 1.1.2.1 -- 2022-03-16
+
 * Move nom-build and zsh completion files from nixpkgs into this repo
 * Internal refactoring for streamly >= 0.8 and ghc 9.0 compat
 
 ## 1.1.2.0 -- 2022-03-12
+
 * Fix the bug that the colored errors of newer nix version didn‘t get parsed as errors.
 
 ## 1.1.1.0 -- 2022-03-08
+
 * Only show dependency graph when necessary
 * Only show build counts for host, when not zero
 
 ## 1.1.0.0 -- 2022-03-07
+
 * Replace list of running and failed builds with a continually updated dependency graph
 * A lot of small convenience improvements e.g. nicer timestamps
 * Make input parsing more robust via using streamly. This hopefully fixes #23.
 * Symbols: Change a few used symbols and force text representation
 
 ## 1.0.5.0 -- 2022-03-05
+
 * Make the parser for storepath accept more storepaths which actually occur in the wild.
 
 ## 1.0.4.2 -- 2022-02-25
+
 * Other fixes for relude 1.0 compat
 
 ## 1.0.4.1 -- 2022-02-25
+
 * Rename an internal variable for relude 1.0 compat
 
 ## 1.0.4.0 -- 2021-12-03
+
 * Make parsing a bit more flexible for better nix 2.4 compatibility.
 
 ## 1.0.3.3 -- 2021-09-24
+
 * Reduce flickering for some terminal emulators. Thanks @pennae
 
 ## 1.0.3.2 -- 2021-09-17
+
 * Improve warning when nom received no input, again.
 
 ## 1.0.3.1 -- 2021-04-30
+
 * Improve warning when nom received no input
 
 ## 1.0.3.0 -- 2021-03-04

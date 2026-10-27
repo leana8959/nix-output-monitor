@@ -1,0 +1,192 @@
+cabal-version: 2.2
+name: nix-output-monitor
+version: 2.2.0
+synopsis:
+  Processes output of Nix commands to show helpful and pretty information
+
+description:
+  A tool which consumes Nix’s output to enrich your terminal output with useful information.
+
+homepage: https://code.maralorn.de/maralorn/nix-output-monitor
+bug-reports: https://github.com/maralorn/nix-output-monitor/issues
+license: EUPL-1.2
+license-file: LICENSE
+author: maralorn <mail@maralorn.de>
+maintainer: maralorn <mail@maralorn.de>
+build-type: Simple
+extra-source-files:
+  completions/nom-build.bash
+  completions/nom-build.zsh
+  completions/nom-shell.bash
+  completions/nom-shell.zsh
+  completions/nom.bash
+  completions/nom.fish
+  completions/nom.zsh
+  test/integration/fail/stderr
+  test/integration/fail/stderr.json
+  test/integration/fail/stdout
+  test/integration/fail/stdout.json
+  test/integration/standard/stderr
+  test/integration/standard/stderr.json
+  test/integration/standard/stdout
+  test/integration/standard/stdout.json
+
+category:
+  console
+  nix
+
+source-repository head
+  type: git
+  location: https://code.maralorn.de/maralorn/nix-output-monitor
+
+common common-config
+  default-extensions:
+    AllowAmbiguousTypes
+    BlockArguments
+    DuplicateRecordFields
+    MultiWayIf
+    NoDeriveGeneric
+    NoFieldSelectors
+    NoImplicitPrelude
+    OverloadedLabels
+    OverloadedRecordDot
+    OverloadedStrings
+    RecordWildCards
+    RequiredTypeArguments
+    StrictData
+    TemplateHaskell
+    TypeFamilies
+    UndecidableInstances
+    UnicodeSyntax
+    ViewPatterns
+
+  build-depends:
+    ansi-terminal,
+    async,
+    attoparsec,
+    base >=4.10 && <5.0,
+    bytestring,
+    cassava,
+    containers,
+    directory,
+    extra,
+    filelock,
+    filepath,
+    fsnotify,
+    hermes-json >=0.6.0.0,
+    nix-derivation,
+    optics,
+    relude,
+    safe,
+    safe-exceptions,
+    stm,
+    streamly-core,
+    strict,
+    template-haskell,
+    terminal-size,
+    text,
+    time,
+    transformers,
+    word8,
+
+  default-language: GHC2024
+  ghc-options:
+    -Weverything
+    -Wno-missing-import-lists
+    -Wno-missing-local-signatures
+    -Wno-implicit-prelude
+    -Wno-monomorphism-restriction
+    -Wno-missed-specialisations
+    -Wno-all-missed-specialisations
+    -Wno-missing-kind-signatures
+    -Wno-missing-role-annotations
+    -Wno-missing-safe-haskell-mode
+    -Wno-unticked-promoted-constructors
+    -Wno-safe
+    -Wno-unsafe
+    -fno-show-valid-hole-fits
+    -fexpose-all-unfoldings
+    -fshow-warning-groups
+
+library
+  import: common-config
+  hs-source-dirs: lib
+  -- cabal-gild: discover lib
+  exposed-modules:
+    Data.Sequence.Strict
+    NOM.Builds
+    NOM.Error
+    NOM.IO
+    NOM.IO.Input
+    NOM.IO.Input.JSON
+    NOM.IO.Input.OldStyle
+    NOM.NixMessage.JSON
+    NOM.NixMessage.OldStyle
+    NOM.Parser
+    NOM.Parser.JSON
+    NOM.Print
+    NOM.Print.ProgressBar
+    NOM.Print.ProgressBar.Char
+    NOM.Print.Table
+    NOM.Print.Tree
+    NOM.State
+    NOM.State.CacheId
+    NOM.State.CacheId.Map
+    NOM.State.CacheId.Set
+    NOM.State.Initial
+    NOM.State.Sorting
+    NOM.State.Tree
+    NOM.StreamParser
+    NOM.Update
+    NOM.Update.Monad
+    NOM.Update.Monad.CacheBuildReports
+    NOM.Util
+
+common exes
+  import: common-config
+  ghc-options:
+    -threaded
+    -Wno-unused-packages
+    -with-rtsopts=-maxN2
+
+executable nom
+  import: exes
+  hs-source-dirs: exe
+  main-is: Main.hs
+  other-modules: Paths_nix_output_monitor
+  -- Silence a failing warning on aarch64-darwin
+  -- see https://github.com/haskell/cabal/issues/4739
+  -- and https://github.com/maralorn/nix-output-monitor/issues/279
+  ghc-options: -optP-Wno-nonportable-include-path
+  build-depends:
+    nix-output-monitor,
+    typed-process,
+    unix,
+
+common tests
+  import: exes
+  build-depends:
+    HUnit,
+    nix-output-monitor,
+    typed-process,
+
+test-suite unit-tests
+  import: tests
+  hs-source-dirs: test
+  type: exitcode-stdio-1.0
+  main-is: UnitTests.hs
+
+test-suite integration-tests
+  import: tests
+  hs-source-dirs: test
+  build-depends: random
+  type: exitcode-stdio-1.0
+  main-is: IntegrationTests.hs
+
+test-suite doc-tests
+  import: tests
+  default-extensions: ImplicitPrelude
+  build-depends: doctest-parallel
+  hs-source-dirs: test
+  type: exitcode-stdio-1.0
+  main-is: DocTests.hs
